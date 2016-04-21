@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -e
+
+ContainerIP=$(ip add | grep global | sed 's|.*[ ]\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\).*|\1|')
+echo "ContainerIP: $ContainerIP"
+exec /bin/etcd \
+ -name etcd0 \
+ -advertise-client-urls http://${ContainerIP}:2379,http://${ContainerIP}:4001 \
+ -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
+ -initial-advertise-peer-urls http://${ContainerIP}:2380 \
+ -listen-peer-urls http://0.0.0.0:2380 \
+ -initial-cluster-token etcd-cluster-1 \
+ -initial-cluster etcd0=http://${ContainerIP}:2380 \
+ -initial-cluster-state new
